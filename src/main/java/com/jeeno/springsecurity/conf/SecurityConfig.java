@@ -3,6 +3,7 @@ package com.jeeno.springsecurity.conf;
 import com.jeeno.springsecurity.conf.security.LogoutHandler;
 import com.jeeno.springsecurity.conf.security.MyFailureHandler;
 import com.jeeno.springsecurity.conf.security.MySuccessHandler;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -66,14 +67,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
             .and()
                 .authorizeRequests()
-                .antMatchers("/index", "/expire", "/timeout")
+                // GET的部分请求路径放行
+                .antMatchers(HttpMethod.GET, "/index", "/expire", "/timeout")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
 
         // 会话管理
         http.sessionManagement()
-                // session失效（异地登录/登录超时都会）时请求的url（需要配置无需认证的url，斗则会被拦截到登录页面）
+                // session失效（登录超时）时请求的url（需要配置无需认证的url，斗则会被拦截到登录页面）
                 .invalidSessionUrl("/timeout")
                 // 同一用户最大的同时在线数
                 .maximumSessions(1)
