@@ -1,12 +1,11 @@
 package com.jeeno.springsecurity.controller;
 
 import com.jeeno.springsecurity.common.AppProperties;
-import com.jeeno.springsecurity.pojo.ReturnDTO;
 import com.jeeno.springsecurity.pojo.UserDO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -16,8 +15,8 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 登录控制层接口
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 15:35
  */
 @RestController
@@ -76,5 +75,11 @@ public class LoginController {
         HttpSession session = request.getSession();
         return  appProperties.getPort() + " : " + session.getAttribute("param");
     }
+
+    @GetMapping("/back/gate/{username}")
+    public String getSessionAttribute(@PathVariable String username, HttpServletRequest request) {
+        return "";
+    }
+
 
 }

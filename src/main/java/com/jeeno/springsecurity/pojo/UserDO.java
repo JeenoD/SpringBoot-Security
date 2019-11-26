@@ -23,8 +23,8 @@ import java.util.List;
 
 /**
  * 用户信息类
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 15:41
  */
 @Data

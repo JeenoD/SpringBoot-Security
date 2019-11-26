@@ -12,8 +12,8 @@ import java.io.IOException;
 
 /**
  * 登录成功处理器
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 15:24
  */
 @Component
@@ -24,7 +24,6 @@ public class MySuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         log.info("---------------登录成功---------------");
-        request.getSession().setAttribute("param", "属性param值");
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().print(ReturnDTO.builder().status(ReturnDTO.StatusEnum.SUCCESS).message("登录成功").build());
         response.getWriter().flush();

@@ -13,8 +13,8 @@ import java.io.IOException;
 
 /**
  * 登录失败处理器
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 15:32
  */
 @Component

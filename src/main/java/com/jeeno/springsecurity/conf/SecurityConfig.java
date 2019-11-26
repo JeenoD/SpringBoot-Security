@@ -1,22 +1,28 @@
 package com.jeeno.springsecurity.conf;
 
+import com.jeeno.springsecurity.conf.security.BackGateAuthenticationProvider;
 import com.jeeno.springsecurity.conf.security.LogoutHandler;
 import com.jeeno.springsecurity.conf.security.MyFailureHandler;
 import com.jeeno.springsecurity.conf.security.MySuccessHandler;
+import com.jeeno.springsecurity.filter.BackGateLoginFilter;
+import com.jeeno.springsecurity.filter.PassDecoderFilter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
 /**
  * spring security 核心配置类
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 15:14
  */
 @Component
@@ -28,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private MyFailureHandler failureHandler;
 
+    @SuppressWarnings("unused")
     @Resource
     private LogoutHandler logoutHandler;
 
@@ -37,9 +44,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private UserDetailsService userDetailsService;
 
+    @Resource
+    private PassDecoderFilter decoderFilter;
+
+//    @Resource
+//    private BackGateLoginFilter backGateLoginFilter;
+
+    @Resource
+    private BackGateAuthenticationProvider backGateAuthenticationProvider;
+
+
+    /**
+     * 认证管理器
+     * @return AuthenticationManager
+     * @throws Exception 异常
+     */
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        // 注册自定义的认证器
+        auth.authenticationProvider(backGateAuthenticationProvider);
     }
 
     @Override
@@ -58,6 +88,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 自带API接口： 清空权限信息 - 默认（true）
                 .clearAuthentication(true);
 
+        BackGateLoginFilter backGateLoginFilter = new BackGateLoginFilter();
+        backGateLoginFilter.setAuthenticationManager(authenticationManagerBean());
+        // 过滤器链配置
+        http.addFilterBefore(decoderFilter, UsernamePasswordAuthenticationFilter.class)
+                // 后门登录拦截器
+                .addFilterBefore(backGateLoginFilter, UsernamePasswordAuthenticationFilter.class);
+
         // 登录及其页面拦截配置
         http.formLogin()
                 .loginPage("/login")
@@ -69,6 +106,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // GET的部分请求路径放行
                 .antMatchers(HttpMethod.GET, "/index", "/expire", "/timeout")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/back/gate/*", "/back/gate2/*")
                 .permitAll()
                 .anyRequest()
                 .authenticated();

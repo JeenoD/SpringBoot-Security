@@ -13,8 +13,8 @@ import java.io.IOException;
 
 /**
  * 用户注销登录的处理器
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 17:43
  */
 @Component

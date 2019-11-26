@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 /**
  * 用户的操作
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/11/21 16:21
  */
 @Repository
