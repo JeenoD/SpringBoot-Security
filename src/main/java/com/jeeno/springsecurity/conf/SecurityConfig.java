@@ -2,6 +2,7 @@ package com.jeeno.springsecurity.conf;
 
 import com.jeeno.springsecurity.conf.security.BackGateAuthenticationProvider;
 import com.jeeno.springsecurity.conf.security.LogoutHandler;
+import com.jeeno.springsecurity.conf.security.MyAccessDeniedHandler;
 import com.jeeno.springsecurity.conf.security.MyFailureHandler;
 import com.jeeno.springsecurity.conf.security.MySuccessHandler;
 import com.jeeno.springsecurity.filter.BackGateLoginFilter;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +29,8 @@ import javax.annotation.Resource;
  * @date 2019/11/21 15:14
  */
 @Component
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
@@ -33,6 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
     private MyFailureHandler failureHandler;
+
+    @Resource
+    private MyAccessDeniedHandler deniedHandler;
 
     @SuppressWarnings("unused")
     @Resource
@@ -111,7 +119,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/back/gate/*", "/back/gate2/*")
                 .permitAll()
                 .anyRequest()
-                .authenticated();
+                .authenticated()
+            .and()
+                .exceptionHandling()
+                // 权限校验不通过时调用的处理器（需要已登录，即有认证信息，但是无权限）
+                .accessDeniedHandler(deniedHandler);
 
         // 会话管理
         http.sessionManagement()
