@@ -47,12 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private PassDecoderFilter decoderFilter;
 
-//    @Resource
-//    private BackGateLoginFilter backGateLoginFilter;
-
     @Resource
     private BackGateAuthenticationProvider backGateAuthenticationProvider;
-
 
     /**
      * 认证管理器
@@ -88,12 +84,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 自带API接口： 清空权限信息 - 默认（true）
                 .clearAuthentication(true);
 
+        // 后门登录过滤器
         BackGateLoginFilter backGateLoginFilter = new BackGateLoginFilter();
         backGateLoginFilter.setAuthenticationManager(authenticationManagerBean());
+        // 对于自定义的认证过滤器，必须要设置成功和失败的处理器。否则redis中会插入一条SpringSecurity_Last_exception,且页面上返回空
+        backGateLoginFilter.setAuthenticationFailureHandler(failureHandler);
+        backGateLoginFilter.setAuthenticationSuccessHandler(successHandler);
+
         // 过滤器链配置
         http.addFilterBefore(decoderFilter, UsernamePasswordAuthenticationFilter.class)
-                // 后门登录拦截器
-                .addFilterBefore(backGateLoginFilter, UsernamePasswordAuthenticationFilter.class);
+            // 后门登录过滤器
+            .addFilterBefore(backGateLoginFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 登录及其页面拦截配置
         http.formLogin()
