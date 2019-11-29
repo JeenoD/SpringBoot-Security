@@ -108,7 +108,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/user/login")
+                // 登录成功处理器, 不同于xxSuccessUrl（跳转url）
                 .successHandler(successHandler)
+                // 登录失败处理器
                 .failureHandler(failureHandler)
                 .permitAll()
             .and()
@@ -128,6 +130,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 会话管理
         http.sessionManagement()
                 // session失效（登录超时）时请求的url（需要配置无需认证的url，斗则会被拦截到登录页面）
+                //     前后端分离的情况下会导致页面跳转，可以考虑用InvalidSessionStrategy
                 .invalidSessionUrl("/timeout")
                 // 同一用户最大的同时在线数
                 .maximumSessions(1)
