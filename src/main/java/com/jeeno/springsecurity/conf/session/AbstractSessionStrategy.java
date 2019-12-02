@@ -10,8 +10,8 @@ import java.io.IOException;
 
 /**
  * 会话策略的抽象类
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/12/2 9:51
  */
 @Slf4j

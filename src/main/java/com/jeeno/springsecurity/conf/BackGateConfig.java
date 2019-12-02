@@ -15,8 +15,8 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
 /**
- * @author 杜家浩
- * @version 2.1.0
+ * @author Jeeno
+ * @version 1.0.0
  * @date 2019/12/2 18:38
  */
 @Component
