@@ -5,7 +5,7 @@ import com.jeeno.springsecurity.conf.security.LogoutHandler;
 import com.jeeno.springsecurity.conf.security.MyAccessDeniedHandler;
 import com.jeeno.springsecurity.conf.security.MyFailureHandler;
 import com.jeeno.springsecurity.conf.security.MySuccessHandler;
-import com.jeeno.springsecurity.filter.BackGateLoginFilter;
+import com.jeeno.springsecurity.conf.session.SessionInvalidStrategy;
 import com.jeeno.springsecurity.filter.PassDecoderFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -58,6 +59,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private BackGateAuthenticationProvider backGateAuthenticationProvider;
 
+    @Resource
+    private SessionInvalidStrategy sessionInvalidStrategy;
+
+    @Resource
+    private SessionInformationExpiredStrategy expiredStrategy;
+
+    @Resource
+    private BackGateConfig backGateConfig;
+
     /**
      * 认证管理器
      * @return AuthenticationManager
@@ -92,17 +102,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 自带API接口： 清空权限信息 - 默认（true）
                 .clearAuthentication(true);
 
-        // 后门登录过滤器
-        BackGateLoginFilter backGateLoginFilter = new BackGateLoginFilter();
-        backGateLoginFilter.setAuthenticationManager(authenticationManagerBean());
-        // 对于自定义的认证过滤器，必须要设置成功和失败的处理器。否则redis中会插入一条SpringSecurity_Last_exception,且页面上返回空
-        backGateLoginFilter.setAuthenticationFailureHandler(failureHandler);
-        backGateLoginFilter.setAuthenticationSuccessHandler(successHandler);
+        // ### 搞不明白为什么在这边赋值SessionAuthenticationStrategy就是空
+//        // 后门登录过滤器
+//        BackGateLoginFilter backGateLoginFilter = new BackGateLoginFilter();
+//        backGateLoginFilter.setAuthenticationManager(authenticationManagerBean());
+//        // 对于自定义的认证过滤器，必须要设置成功和失败的处理器。否则redis中会插入一条SpringSecurity_Last_exception,且页面上返回空
+//        backGateLoginFilter.setAuthenticationFailureHandler(failureHandler);
+//        backGateLoginFilter.setAuthenticationSuccessHandler(successHandler);
+//        backGateLoginFilter.setSessionAuthenticationStrategy(http.getSharedObject(SessionAuthenticationStrategy.class));
 
         // 过滤器链配置
-        http.addFilterBefore(decoderFilter, UsernamePasswordAuthenticationFilter.class)
-            // 后门登录过滤器
-            .addFilterBefore(backGateLoginFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(decoderFilter, UsernamePasswordAuthenticationFilter.class);
+//            // 后门登录过滤器
+//            .addFilterBefore(backGateLoginFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 登录及其页面拦截配置
         http.formLogin()
@@ -129,21 +141,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // 会话管理
         http.sessionManagement()
-                // session失效（登录超时）时请求的url（需要配置无需认证的url，斗则会被拦截到登录页面）
-                //     前后端分离的情况下会导致页面跳转，可以考虑用InvalidSessionStrategy
-                .invalidSessionUrl("/timeout")
+                // session失效时请求的url（需要配置无需认证的url，斗则会被拦截到登录页面）
+//                //     前后端分离的情况下会导致页面跳转，可以考虑用InvalidSessionStrategy
+//                .invalidSessionUrl("/timeout")
+                .invalidSessionStrategy(sessionInvalidStrategy)
                 // 同一用户最大的同时在线数
                 .maximumSessions(1)
 //                // 是否执行登录保护（true-后续无法登录;false-后续登录挤掉前面用户） 默认false
 //                .maxSessionsPreventsLogin(true)
-                // 异地登录导致过期时请求的url（需要配置无需认证的url,否则会被拦截到登录页面）
-                .expiredUrl("/expire");
+//                // session过期（异地登录导致）时请求的url（需要配置无需认证的url,否则会被拦截到登录页面）
+//                .expiredUrl("/expire");
+                .expiredSessionStrategy(expiredStrategy);
 
         // 允许跨域
         http.cors();
 
         //暂时关闭csrf功能
         http.csrf().disable();
+
+        // 加载后门登录过滤器配置
+        http.apply(backGateConfig);
     }
 
 }

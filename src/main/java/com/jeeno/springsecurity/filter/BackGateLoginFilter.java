@@ -21,7 +21,6 @@ public class BackGateLoginFilter extends AbstractAuthenticationProcessingFilter 
 
     private static String PATH = "/back/gate/";
 
-
     public BackGateLoginFilter() {
         // 该过滤器所匹配的请求url配置
         super(new AntPathRequestMatcher(PATH + "*", "GET"));
@@ -32,7 +31,8 @@ public class BackGateLoginFilter extends AbstractAuthenticationProcessingFilter 
             throws AuthenticationException {
         log.debug("#BackGateLoginFilter#");
         String username = request.getRequestURI().substring(PATH.length());
-        BackGateAuthentication backGateAuthentication =new BackGateAuthentication(username);
+        BackGateAuthentication backGateAuthentication = new BackGateAuthentication(username);
+
         return this.getAuthenticationManager().authenticate(backGateAuthentication);
     }
 

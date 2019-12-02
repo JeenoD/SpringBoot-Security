@@ -33,7 +33,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "user_info")
 @Builder
-@ToString
+//@ToString
 public class UserDO implements UserDetails {
 
     @Id
@@ -97,5 +97,26 @@ public class UserDO implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UserDO) {
+            return username.equals(((UserDO) obj).username);
+        }
+        return false;
+    }
+
+    /**
+     * Returns the hashcode of the {@code username}.
+     */
+    @Override
+    public int hashCode() {
+        return username.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }

@@ -1,6 +1,7 @@
 package com.jeeno.springsecurity.conf.security;
 
 import com.jeeno.springsecurity.pojo.UserDO;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
  * @version 1.0.0
  * @date 2019/11/26 16:51
  */
+@Data
 @Slf4j
 @Component
 public class BackGateAuthenticationProvider implements AuthenticationProvider {
@@ -45,4 +47,6 @@ public class BackGateAuthenticationProvider implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return authentication.getName().equals(BackGateAuthentication.class.getName());
     }
+
+
 }
